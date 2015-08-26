@@ -1,20 +1,31 @@
 var frisby = require('frisby');
+
 var endpoint = 'http://localhost:4567/api/flights'
+var dataJson = {
+        data_partida: "2015-12-12T00:00:00.000Z",
+        data_chegada: "2015-12-12T00:00:00.000Z",
+        numero: "15",
+        origem: "BH",
+        destino: "RJ",
+        duracao: 12,
+        lugares: 12,
+        companhia: "Azul",
+        id: 1
+    }
+var typeJson = {
+        data_partida: String,
+        data_chegada: String,
+        numero: String,
+        origem: String,
+        destino: String,
+        companhia: String,
+        duracao: Number,
+        lugares: Number,
+        id: Number
+    }
 
 frisby.create('Create a flight')
-    .post(endpoint, {
-
-    data_partida: "2015-12-12T00:00:00.000Z",
-    data_chegada: "2015-12-12T00:00:00.000Z",
-    numero: "15",
-    origem: "BH",
-    destino: "RJ",
-    duracao: 12,
-    lugares: 12,
-    companhia: "Azul",
-    id: 1
-
-    })
+    .post(endpoint, dataJson)
     .expectStatus(200)
     .expectHeaderContains('content-type', 'application/json')
 .toss();
@@ -23,45 +34,18 @@ frisby.create('Search for the created flight')
     .get(endpoint+'/1')
     .expectStatus(200)
     .expectHeaderContains('content-type', 'application/json')
-    .expectJSONTypes({
-
-    data_partida: String,
-    data_chegada: String,
-    numero: String,
-    origem: String,
-    destino: String,
-    companhia: String,
-    duracao: Number,
-    lugares: Number,
-    id: Number
-
-    })
-    .expectJSON({
-        id: 1,
-    })
+    .expectJSONTypes(typeJson)
+    .expectJSON(dataJson)
 .toss();
 
 frisby.create('Create duplicated flights')
-    .post(endpoint, {
-
-    data_partida: "2015-12-12T00:00:00.000Z",
-    data_chegada: "2015-12-12T00:00:00.000Z",
-    numero: "15",
-    origem: "BH",
-    destino: "RJ",
-    duracao: 12,
-    lugares: 12,
-    companhia: "Azul",
-    id: 1
-
-    })
+    .post(endpoint, dataJson)
     .expectStatus(500)
     .expectHeaderContains('content-type', 'application/json')
     .expectJSON('error',{
         message: "Duplicate entry for flight.id"
     })
 .toss();
-
 
 frisby.create('Verify if the created flight exists')
     .get(endpoint+'/1/exists')
